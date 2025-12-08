@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: imgvision
+Description: High-performance Image Classification + OCR Library (YOLO + Darknet + Tesseract)
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -limgvision
+Cflags: -I${includedir}

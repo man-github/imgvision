@@ -1,42 +1,122 @@
 #include "internal.h"
-#include <new>
+#include <fstream>
+#include <iostream>
 
-extern "C" {
+/*
+ * Global shared objects — used by all API contexts
+ */
+Detector* g_detector = nullptr;
+std::vector<std::string> g_labels;
+int g_ocr_mode = 0;
 
-int get_api(void **api)
+/*
+ * Load .names file
+ */
+std::vector<std::string> load_labels(const char* names_file) {
+    std::vector<std::string> out;
+    std::ifstream f(names_file);
+    std::string line;
+
+    while (std::getline(f, line)) {
+        if (!line.empty())
+            out.push_back(line);
+    }
+    return out;
+}
+
+/*
+ * Initialize library: YOLO + label list + OCR mode
+ */
+extern "C"
+int img_lib_init(const char* cfg_file,
+                 const char* weights_file,
+                 const char* names_file,
+                 int ocr_engine_mode)
 {
-    if (!api) return 1;
+    if (!cfg_file || !weights_file || !names_file)
+        return -1;
 
-    ApiContext* ctx = new(std::nothrow) ApiContext();
-    if (!ctx) return 1;
+    try {
+        g_detector = new Detector(cfg_file, weights_file);
+    }
+    catch (...) {
+        std::cerr << "ERROR: Failed to load YOLO detector" << std::endl;
+        return -2;
+    }
 
-    ctx->tess = new tesseract::TessBaseAPI();
-    if (ctx->tess->Init(NULL, "eng")) return 1;
+    g_labels = load_labels(names_file);
+    g_ocr_mode = ocr_engine_mode;
 
-    ctx->yolo = load_network((char*)"models/yolov3.cfg",
-                             (char*)"models/yolov3.weights",
-                             0);
+    return 0;
+}
 
-    ctx->labels = get_labels((char*)"models/coco.names");
-    ctx->label_count = 80;
+/*
+ * De-initialize global state
+ */
+extern "C"
+int img_lib_deinit()
+{
+    if (g_detector) {
+        delete g_detector;
+        g_detector = nullptr;
+    }
+    g_labels.clear();
+
+    return 0;
+}
+
+/*
+ * Allocate per-thread API context
+ */
+extern "C"
+int get_api(void** api)
+{
+    if (!g_detector)
+        return -1;
+
+    ApiContext* ctx = new ApiContext();
+    ctx->yolo = g_detector;
+    ctx->labels = g_labels;
+
+    // Create Tesseract instance
+    ctx->ocr = new tesseract::TessBaseAPI();
+
+    tesseract::OcrEngineMode mode;
+
+    if (g_ocr_mode == OCR_LEGACY_ONLY)
+        mode = tesseract::OEM_TESSERACT_ONLY;
+    else if (g_ocr_mode == OCR_LSTM_AND_LEGACY)
+        mode = tesseract::OEM_TESSERACT_LSTM_COMBINED;
+    else
+        mode = tesseract::OEM_LSTM_ONLY;
+
+    // Init OCR engine
+    if (ctx->ocr->Init(NULL, "eng", mode) != 0) {
+        delete ctx->ocr;
+        delete ctx;
+        return -2;
+    }
 
     *api = ctx;
     return 0;
 }
 
-int free_api(IMG_API_HANDLE api)
+/*
+ * Free per-thread API context
+ */
+extern "C"
+int free_api(void* api)
 {
-    if (!api) return -1;
+    ApiContext* ctx = (ApiContext*)api;
 
-    ApiContext* ctx = (ApiContext*) api;
+    if (!ctx)
+        return 0;
 
-    ctx->tess->End();
-    delete ctx->tess;
-
-    free_network(ctx->yolo);
+    if (ctx->ocr)
+        delete ctx->ocr;
 
     delete ctx;
     return 0;
 }
 
-}
+

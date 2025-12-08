@@ -1,1 +1,40 @@
 Source: imgvision
+Section: libs
+Priority: optional
+Maintainer: Your Name <you@example.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ autoconf,
+ automake,
+ libtool,
+ pkg-config,
+ libtesseract-dev,
+ libopencv-dev,
+ zlib1g-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/man-github/imgvision
+Rules-Requires-Root: no
+
+Package: libimgvision1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: High-performance YOLO + OCR image analysis library
+ Imgvision is a C/C++ shared library that combines Darknet/YOLO object
+ detection with Tesseract OCR for high-performance image analysis.
+ The library exposes a thread-safe API for classification and text extraction.
+
+Package: libimgvision-dev
+Section: libdevel
+Architecture: any
+Depends: libimgvision1 (= ${binary:Version}), ${misc:Depends}, libtesseract-dev, libopencv-dev
+Description: Development files for imgvision YOLO + OCR library
+ Header files, pkg-config metadata and import libraries for imgvision.
+ Install this package to build applications against libimgvision.
+
+Package: imgvision-examples
+Section: utils
+Architecture: any
+Depends: libimgvision1 (>= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Example program for imgvision YOLO + OCR library
+ Installs a small example program that demonstrates how to call the
+ imgvision API to run YOLO classification and Tesseract OCR.

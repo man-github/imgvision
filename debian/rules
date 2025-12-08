@@ -1,1 +1,10 @@
 #!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--prefix=/usr \
+		--with-darknet-includes=/usr/tool-chain/include/darknet \
+		--with-darknet-libs=/usr/tool-chain/lib/darknet

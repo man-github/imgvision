@@ -1,0 +1,46 @@
+# Autotools
+/aclocal.m4
+/autom4te.cache/
+/config.h
+/config.log
+/config.status
+/Makefile
+/Makefile.in
+/ar-lib
+/compile
+/depcomp
+/install-sh
+/missing
+/ltmain.sh
+/libtool
+
+# Libtool build dirs
+src/.libs/
+src/.deps/
+examples/.libs/
+examples/.deps/
+include/.deps/
+
+# Objects, libs, binaries
+*.o
+*.lo
+*.la
+*.a
+*.so
+*.so.*
+
+# Debian build outputs
+*.deb
+*.dsc
+*.build
+*.changes
+debian/imgvision.substvars
+debian/libimgvision1.substvars
+debian/libimgvision-dev.substvars
+debian/imgvision-examples.substvars
+debian/files
+debian/.debhelper/
+debian/tmp/
+debian/libimgvision1/
+debian/libimgvision-dev/
+debian/imgvision-examples/

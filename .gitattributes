@@ -1,0 +1,16 @@
+# Default: treat files as text, normalize to LF in repo
+* text=auto eol=lf
+
+# Explicit project files (optional, but clearer)
+*.c     text eol=lf
+*.h     text eol=lf
+*.cpp   text eol=lf
+*.hpp   text eol=lf
+*.ac    text eol=lf
+*.am    text eol=lf
+Makefile.am text eol=lf
+autogen.sh  text eol=lf
+configure   text eol=lf
+*.sh    text eol=lf
+*.txt   text eol=lf
+*.md    text eol=lf

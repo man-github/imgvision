@@ -1,3 +1,6 @@
-imgvision (1.0.0-1) unstable; urgency=low
+imgvision (1.0-1) unstable; urgency=medium
 
- * Initial release.
+  * Initial release of imgvision YOLO+OCR library.
+  * Provides shared library, development headers and example binary.
+
+ -- Your Name <you@example.com>  Mon, 08 Dec 2025 12:00:00 +0530

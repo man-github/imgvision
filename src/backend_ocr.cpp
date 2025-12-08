@@ -6,17 +6,23 @@ void run_ocr(ApiContext* ctx,
              size_t len,
              std::string &out)
 {
-    std::vector<unsigned char> data((unsigned char*)buf,
-                                    (unsigned char*)buf + len);
+    if (!ctx || !ctx->ocr)
+        return;
 
-    PIX* pix = pixReadMem(data.data(), len);
-    if (!pix) { out = ""; return; }
+    cv::Mat img = cv::imdecode(
+        cv::Mat(1, len, CV_8UC1, (void*)buf),
+        cv::IMREAD_COLOR);
 
-    ctx->tess->SetImage(pix);
-    char* text = ctx->tess->GetUTF8Text();
+    if (img.empty()) {
+        fprintf(stderr, "OCR: decode failed\n");
+        return;
+    }
 
-    out = text ? text : "";
-    delete[] text;
+    ctx->ocr->SetImage(img.data, img.cols, img.rows, 3, img.step);
 
-    pixDestroy(&pix);
+    char* txt = ctx->ocr->GetUTF8Text();
+    if (txt) {
+        out = txt;
+        delete[] txt;
+    }
 }

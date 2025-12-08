@@ -1,0 +1,3 @@
+usr/include/imgvision/*
+usr/lib/*/libimgvision.so
+usr/lib/*/pkgconfig/imgvision.pc
